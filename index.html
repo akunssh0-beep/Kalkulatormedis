@@ -82,8 +82,8 @@
             </svg>
         </div>
         <div class="flex-1">
-            <h4 class="font-extrabold text-sm uppercase">Fitur Baru v3.3!</h4>
-            <p class="text-[11px] opacity-90 mt-1">Sistem Cek Update otomatis & Kalkulator Status Gizi IMT kini lebih akurat.</p>
+            <h4 class="font-extrabold text-sm uppercase">Fitur Baru v3.4!</h4>
+            <p class="text-[11px] opacity-90 mt-1">Kalkulator Cakupan Penimbangan Balita (D/S) kini tersedia di tab Status Gizi.</p>
             <button onclick="closeNotif()" class="mt-2 text-[10px] font-black bg-white text-blue-600 px-3 py-1 rounded-lg uppercase">Lanjutkan!</button>
         </div>
     </div>
@@ -98,7 +98,7 @@
                         </svg>
                         UGD Sampanahan Pro
                     </h1>
-                    <p class="text-[10px] font-bold opacity-80 mt-1 uppercase tracking-widest">Puskesmas Sampanahan • v3.3</p>
+                    <p class="text-[10px] font-bold opacity-80 mt-1 uppercase tracking-widest">Puskesmas Sampanahan • v3.4</p>
                 </div>
                 <div id="offline-label" class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">ONLINE</div>
             </div>
@@ -246,17 +246,34 @@
 
             <section id="gizi" class="tab-content">
                 <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-emerald-900 uppercase">Indeks Massa Tubuh (IMT)</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Penilaian status gizi orang dewasa.</p>
+                    <h3 class="text-sm font-bold text-emerald-900 uppercase">Status Gizi (IMT & D/S)</h3>
+                    <p class="text-[11px] text-slate-600 mt-1">Penilaian gizi dewasa (IMT) dan cakupan penimbangan anak (D/S).</p>
                 </div>
-                <h2 class="text-lg font-extrabold text-emerald-900 mb-6 border-l-4 border-emerald-500 pl-3 uppercase">Status Gizi Dewasa</h2>
-                <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">Berat Badan (kg)</label><input type="number" id="imt_bb" class="w-full bg-transparent font-black" placeholder="60"></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">Tinggi Badan (cm)</label><input type="number" id="imt_tb" class="w-full bg-transparent font-black" placeholder="165"></div>
-                    <button onclick="hitungIMT()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase transition-all active:scale-95">Hitung Status Gizi</button>
+                
+                <h2 class="text-sm font-extrabold text-emerald-900 mb-4 bg-emerald-50 p-2 rounded-lg inline-block uppercase">1. IMT Dewasa</h2>
+                <div class="space-y-4 mb-8">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">BB (kg)</label><input type="number" id="imt_bb" class="w-full bg-transparent font-black" placeholder="60"></div>
+                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">TB (cm)</label><input type="number" id="imt_tb" class="w-full bg-transparent font-black" placeholder="165"></div>
+                    </div>
+                    <button onclick="hitungIMT()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase transition-all active:scale-95">Hitung IMT</button>
                     <div id="res_imt" class="hidden mt-4 p-8 bg-emerald-700 text-white rounded-3xl text-center shadow-xl">
                         <p id="val_imt" class="text-7xl font-black">0.0</p>
                         <p id="desc_imt" class="mt-4 text-sm font-extrabold bg-black/20 inline-block px-6 py-2 rounded-full uppercase tracking-wider">--</p>
+                    </div>
+                </div>
+
+                <h2 class="text-sm font-extrabold text-blue-900 mb-4 bg-blue-50 p-2 rounded-lg inline-block uppercase">2. Cakupan Anak (D/S)</h2>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">D (Ditimbang)</label><input type="number" id="ds_d" class="w-full bg-transparent font-black" placeholder="80"></div>
+                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">S (Sasaran)</label><input type="number" id="ds_s" class="w-full bg-transparent font-black" placeholder="100"></div>
+                    </div>
+                    <button onclick="hitungDS()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase transition-all active:scale-95">Hitung Cakupan D/S</button>
+                    <div id="res_ds" class="hidden mt-4 p-8 bg-blue-700 text-white rounded-3xl text-center shadow-xl">
+                        <p class="text-[10px] font-black uppercase opacity-60 mb-1">Persentase D/S</p>
+                        <p id="val_ds" class="text-7xl font-black">0%</p>
+                        <p id="desc_ds" class="mt-4 text-sm font-extrabold bg-black/20 inline-block px-6 py-2 rounded-full uppercase tracking-wider">--</p>
                     </div>
                 </div>
             </section>
@@ -275,14 +292,14 @@
         <div class="pwa-icon-box"></div>
         <div class="pwa-info">
             <p class="pwa-name">UGD Sampanahan Pro</p>
-            <span class="pwa-meta">Versi 3.3 • Siap Offline</span>
+            <span class="pwa-meta">Versi 3.4 • Siap Offline</span>
             <div class="pwa-stars">★★★★★ <span style="color:#5f6368;margin-left:4px">Klinis Standard</span></div>
         </div>
         <button class="pwa-install-btn" id="pwa-cta">Instal</button>
     </div>
 
     <script>
-        const CURRENT_VERSION = "3.3";
+        const CURRENT_VERSION = "3.4";
 
         // Logic Notifikasi Fitur Baru
         window.addEventListener('load', () => {
@@ -306,7 +323,7 @@
             btn.disabled = true;
 
             setTimeout(() => {
-                alert(`[INFO SISTEM]\nVersi Saat Ini: v${CURRENT_VERSION}\nStatus: Paling Terbaru\n\nSaran Update:\n untuk versi selanjutnya disarankan menambahkan fitur "Kalkulator Dosis Anak" atau "Skoring Resiko Jatuh" agar pelayanan di UGD Puskesmas Sampanahan semakin komplit.`);
+                alert(`[INFO SISTEM]\nVersi Saat Ini: v${CURRENT_VERSION}\nStatus: Paling Terbaru\n\nSaran Update:\nPak Adi, untuk versi selanjutnya disarankan menambahkan "Kalkulator Skor Ballard" untuk bayi baru lahir agar modul KIA semakin lengkap.`);
                 btn.innerText = "CEK UPDATE VERSI";
                 btn.disabled = false;
             }, 1200);
@@ -324,7 +341,7 @@
             window.scrollTo(0,0);
         }
 
-        // --- SEMUA LOGIKA JAVASCRIPT LAMA TETAP DIPERTAHANKAN ---
+        // --- LOGIKA JAVASCRIPT ---
         function hitungGCS() {
             const e = parseInt(document.getElementById('gcs_e').value);
             const v = parseInt(document.getElementById('gcs_v').value);
@@ -420,6 +437,35 @@
                 else if (imt > 27) { desc = "Obesitas"; colorClass = "bg-red-700"; }
                 document.getElementById('res_imt').className = `mt-4 p-8 text-white rounded-3xl text-center shadow-xl ${colorClass}`;
                 document.getElementById('desc_imt').innerText = desc;
+            }
+        }
+
+        // NEW: LOGIC D/S
+        function hitungDS() {
+            const d = parseFloat(document.getElementById('ds_d').value);
+            const s = parseFloat(document.getElementById('ds_s').value);
+            
+            if (d && s) {
+                const persentase = (d / s) * 100;
+                document.getElementById('res_ds').classList.remove('hidden');
+                document.getElementById('val_ds').innerText = Math.round(persentase) + "%";
+                
+                let desc = "";
+                let colorClass = "bg-blue-700";
+                
+                if (persentase >= 80) {
+                    desc = "Cakupan Baik";
+                    colorClass = "bg-emerald-600";
+                } else if (persentase >= 60) {
+                    desc = "Cakupan Sedang";
+                    colorClass = "bg-blue-600";
+                } else {
+                    desc = "Cakupan Kurang";
+                    colorClass = "bg-red-600";
+                }
+                
+                document.getElementById('res_ds').className = `mt-4 p-8 text-white rounded-3xl text-center shadow-xl ${colorClass}`;
+                document.getElementById('desc_ds').innerText = desc;
             }
         }
 
