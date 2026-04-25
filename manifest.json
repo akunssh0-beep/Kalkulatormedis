@@ -1,6 +1,6 @@
 {
   "name": "Kalkulator Medis",
-  "short_name": "Kalkulator M",
+  "short_name": "Kalkulator Medis",
   "start_url": "index.html",
   "display": "standalone",
   "orientation": "portrait-primary",
