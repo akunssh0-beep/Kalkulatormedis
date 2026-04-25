@@ -1,9 +1,9 @@
-// SW Build v1.0.1 - it.adi.p Automator
-const CACHE_NAME = 'kalkulator_medis-v1777124110692';
+// SW Build v2.0.1 - it.adi.p Automator
+const CACHE_NAME = 'kalkulator_medis-v1777115261747';
 const ASSETS = ["./","./index.html","./manifest.json"];
 
 self.addEventListener('install', (event) => {
-    self.skipWaiting();
+    
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
     );
@@ -15,9 +15,9 @@ self.addEventListener('activate', (event) => {
             keys.map((k) => k !== CACHE_NAME && caches.delete(k))
         ))
     );
-    return self.clients.claim();
+    
 });
 
 self.addEventListener('fetch', (event) => {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    event.respondWith(caches.match(event.request).then((res) => res || fetch(event.request)));
 });
