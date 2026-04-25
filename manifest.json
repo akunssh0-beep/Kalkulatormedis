@@ -1,11 +1,11 @@
 {
   "name": "Kalender Medis",
   "short_name": "Kalender Med",
-  "start_url": "index.html?v=1777125838065",
+  "start_url": "index.html?v=2777125838065",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff0000",
-  "version": "2777125838065",
+  "version": "1777125838065",
   "icons": [
     {
       "src": "icon-192.png",
