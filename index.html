@@ -9,13 +9,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
 
         .instruction-box {
             background: #f8fafc;
@@ -24,83 +22,151 @@
             margin-bottom: 1.5rem;
             border-radius: 0.5rem;
         }
-        .moto-text {
-            font-style: italic;
-            color: #64748b;
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
-            display: block;
-        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in; }
         
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         .tab-link.active-tab {
             border-bottom: 3px solid #1e40af;
             color: #1e40af;
             font-weight: 800;
         }
 
-        /* Glassmorphism Effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* Update Notification Pop-up */
-        #update-notif {
+        /* Chatbot UI */
+        #chatbot-bubble {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-150%);
-            width: 90%;
-            max-width: 380px;
-            z-index: 100;
-            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            bottom: 85px;
+            right: 20px;
+            z-index: 50;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #update-notif.show { transform: translateX(-50%) translateY(0); }
+        #chatbot-box {
+            position: fixed;
+            bottom: 155px;
+            right: 20px;
+            width: 280px;
+            max-height: 350px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: none;
+            flex-direction: column;
+            z-index: 51;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .chat-active { display: flex !important; animation: slideIn 0.3s ease; }
 
-        /* Custom Input Styling */
-        input[type="number"], input[type="date"], select {
-            transition: all 0.2s ease;
+        .saran-otomatis {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 11px;
+            text-align: left;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            line-height: 1.4;
         }
-        input:focus, select:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+        .btn-share {
+            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            cursor: pointer;
         }
+        .btn-share:active { transform: scale(0.95); background: rgba(0,0,0,0.4); }
+
+        /* Modal Share Styling */
+        #modal-share-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #modal-share-card {
+            background: white;
+            width: 100%;
+            max-width: 320px;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body class="min-h-screen bg-slate-50">
 
-    <div id="update-notif" class="bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex items-start gap-4">
-        <div class="bg-white/20 p-2 rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-        </div>
-        <div class="flex-1">
-            <h4 class="font-extrabold text-sm uppercase">Fitur Baru v3.4!</h4>
-            <p class="text-[11px] opacity-90 mt-1">Kalkulator Cakupan Penimbangan Balita (D/S) kini tersedia di tab Status Gizi.</p>
-            <button onclick="closeNotif()" class="mt-2 text-[10px] font-black bg-white text-blue-600 px-3 py-1 rounded-lg uppercase">Lanjutkan!</button>
+    <div id="modal-share-overlay">
+        <div id="modal-share-card">
+            <h3 class="font-black text-slate-800 text-lg mb-1 uppercase tracking-tighter">Kirim Hasil</h3>
+            <p class="text-[11px] text-slate-500 mb-6 font-semibold text-center">Pilih kontak atau isi nomor manual.</p>
+            
+            <div class="space-y-4">
+                <div class="relative">
+                    <label class="text-[9px] font-black text-indigo-600 uppercase absolute -top-2 left-3 bg-white px-1">WhatsApp</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="target-phone" placeholder="08123..." class="flex-1 p-4 bg-slate-100 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-all">
+                        <button onclick="pickContact()" class="bg-indigo-600 text-white p-4 rounded-2xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <button onclick="executeWhatsAppShare()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all uppercase tracking-widest text-xs">Kirim Sekarang</button>
+                <button onclick="closeShareModal()" class="w-full py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Batal</button>
+            </div>
         </div>
     </div>
 
+    <div id="chatbot-box">
+        <div class="bg-indigo-600 p-4 text-white font-bold text-sm flex justify-between items-center">
+            <span>Asisten Medis UGD</span>
+            <button onclick="toggleChat()">✕</button>
+        </div>
+        <div id="chat-content" class="p-4 overflow-y-auto text-xs space-y-3 bg-slate-50 flex-grow no-scrollbar">
+            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100">Halo Pak Adi! Perlu saran klinis cepat atau bantuan perhitungan?</div>
+        </div>
+        <div class="p-2 border-t flex gap-1 bg-white">
+            <button onclick="askChat('Syok')" class="text-[9px] bg-slate-100 px-2 py-1 rounded-full font-bold">Syok</button>
+            <button onclick="askChat('Kejang')" class="text-[9px] bg-slate-100 px-2 py-1 rounded-full font-bold">Kejang</button>
+            <button onclick="askChat('Asma')" class="text-[9px] bg-slate-100 px-2 py-1 rounded-full font-bold">Asma</button>
+        </div>
+    </div>
+
+    <button id="chatbot-bubble" onclick="toggleChat()" class="bg-indigo-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 animate-bounce">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+    </button>
+
     <div class="app-container border-x border-gray-200 bg-white max-w-md mx-auto min-h-screen flex flex-col">
-        <header class="bg-gradient-to-br from-blue-700 to-indigo-600 text-white p-6 shadow-lg">
+        <header class="bg-gradient-to-br from-indigo-700 to-blue-600 text-white p-6 shadow-lg">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
-                        UGD Sampanahan Pro
-                    </h1>
-                    <p class="text-[10px] font-bold opacity-80 mt-1 uppercase tracking-widest">Puskesmas Sampanahan • v3.4</p>
+                    <h1 class="text-xl font-extrabold tracking-tight">UGD Sampanahan Pro</h1>
+                    <p class="text-[10px] font-bold opacity-80 mt-1 uppercase tracking-widest text-blue-200">System v3.8 • Smart Contact</p>
                 </div>
-                <div id="offline-label" class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">ONLINE</div>
+                <div id="offline-label" class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Online</div>
             </div>
         </header>
 
@@ -111,392 +177,340 @@
             <button onclick="openTab(event, 'hpl')" class="tab-link flex-shrink-0 px-6 py-4 text-xs uppercase tracking-wider">HPL</button>
             <button onclick="openTab(event, 'parkland')" class="tab-link flex-shrink-0 px-6 py-4 text-xs uppercase tracking-wider">Luka Bakar</button>
             <button onclick="openTab(event, 'infus')" class="tab-link flex-shrink-0 px-6 py-4 text-xs uppercase tracking-wider">Tetes Infus</button>
-            <button onclick="openTab(event, 'gizi')" class="tab-link flex-shrink-0 px-6 py-4 text-xs uppercase tracking-wider font-bold text-emerald-600">Status Gizi</button>
+            <button onclick="openTab(event, 'gizi')" class="tab-link flex-shrink-0 px-6 py-4 text-xs uppercase tracking-wider font-bold text-emerald-600">Gizi</button>
         </nav>
 
-        <main class="p-6 flex-grow pb-24">
+        <main class="p-6 flex-grow pb-24 text-slate-700">
             
             <section id="gcs" class="tab-content active">
                 <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-blue-900 uppercase">Apa itu GCS?</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Glasgow Coma Scale adalah skala untuk menilai tingkat kesadaran pasien melalui respon Mata (E), Suara (V), dan Gerakan (M).</p>
-                    <span class="moto-text">"Ketelitianmu adalah langkah awal keselamatan pasien."</span>
+                    <h3 class="text-sm font-bold text-blue-900 uppercase">Glasgow Coma Scale</h3>
                 </div>
-                <h2 class="text-lg font-extrabold text-purple-900 mb-6 border-l-4 border-purple-500 pl-3 uppercase">GCS Scoring</h2>
                 <div class="space-y-4">
-                    <select id="gcs_e" onchange="hitungGCS()" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none font-bold"><option value="4">E4 - Spontan</option><option value="3">E3 - Suara</option><option value="2">E2 - Nyeri</option><option value="1">E1 - Nihil</option></select>
-                    <select id="gcs_v" onchange="hitungGCS()" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none font-bold"><option value="5">V5 - Orientasi</option><option value="4">V4 - Bingung</option><option value="3">V3 - Kata Tak Tepat</option><option value="2">V2 - Erang</option><option value="1">V1 - Nihil</option></select>
-                    <select id="gcs_m" onchange="hitungGCS()" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none font-bold"><option value="6">M6 - Ikut Perintah</option><option value="5">M5 - Lokalisir Nyeri</option><option value="4">M4 - Avoid</option><option value="3">M3 - Dekortikasi</option><option value="2">M2 - Deserebrasi</option><option value="1">M1 - Nihil</option></select>
-                    <div class="mt-4 p-8 bg-purple-800 text-white rounded-3xl text-center shadow-lg">
+                    <select id="gcs_e" onchange="hitungGCS()" class="w-full p-4 bg-slate-100 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-all">
+                        <option value="4">E4 - Spontan</option>
+                        <option value="3">E3 - Suara</option>
+                        <option value="2">E2 - Nyeri</option>
+                        <option value="1">E1 - Nihil</option>
+                    </select>
+                    <select id="gcs_v" onchange="hitungGCS()" class="w-full p-4 bg-slate-100 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-all">
+                        <option value="5">V5 - Orientasi Baik</option>
+                        <option value="4">V4 - Bingung</option>
+                        <option value="3">V3 - Kata Tak Tepat</option>
+                        <option value="2">V2 - Erangan</option>
+                        <option value="1">V1 - Nihil</option>
+                    </select>
+                    <select id="gcs_m" onchange="hitungGCS()" class="w-full p-4 bg-slate-100 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-all">
+                        <option value="6">M6 - Ikut Perintah</option>
+                        <option value="5">M5 - Lokalisir Nyeri</option>
+                        <option value="4">M4 - Avoid Nyeri</option>
+                        <option value="3">M3 - Dekortikasi</option>
+                        <option value="2">M2 - Deserebrasi</option>
+                        <option value="1">M1 - Nihil</option>
+                    </select>
+
+                    <div id="gcs_card" class="mt-4 p-8 bg-indigo-700 text-white rounded-3xl text-center shadow-xl">
                         <p id="val_gcs" class="text-7xl font-black">15</p>
-                        <p id="desc_gcs" class="text-lg font-extrabold opacity-80 uppercase tracking-widest mt-2">Compos Mentis</p>
+                        <p id="desc_gcs" class="text-lg font-extrabold uppercase mt-2">Sadar Penuh</p>
+                        <div id="saran_gcs" class="saran-otomatis">SARAN: Pasien stabil. Observasi berkala.</div>
+                        <button onclick="openShareModal('GCS')" class="btn-share">Bagikan Hasil</button>
                     </div>
                 </div>
             </section>
 
             <section id="apgar" class="tab-content">
-                <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-rose-900 uppercase">Apa itu APGAR?</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Skala untuk menilai kondisi klinis bayi baru lahir guna mendeteksi tanda gawat janin.</p>
-                </div>
-                <h2 class="text-lg font-extrabold text-rose-900 mb-6 border-l-4 border-rose-500 pl-3 uppercase">Penilaian APGAR</h2>
+                <h2 class="text-lg font-extrabold text-rose-900 mb-6 border-l-4 border-rose-500 pl-3 uppercase">APGAR Score</h2>
                 <div class="space-y-4">
                     <div class="bg-white border rounded-2xl p-4 space-y-4 shadow-sm">
-                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Appearance (Kulit)</label>
-                        <select id="ap_a" onchange="hitungAPGAR()" class="p-2 border-b-2 border-gray-100 font-bold outline-none"><option value="0">0 - Biru/Pucat</option><option value="1">1 - Badan Merah, Tangan Biru</option><option value="2" selected>2 - Merah Seluruh Tubuh</option></select></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Pulse (Nadi)</label>
-                        <select id="ap_p" onchange="hitungAPGAR()" class="p-2 border-b-2 border-gray-100 font-bold outline-none"><option value="0">0 - Tidak Ada</option><option value="1">1 - &lt; 100x/mnt</option><option value="2" selected>2 - &gt; 100x/mnt</option></select></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Grimace (Refleks)</label>
-                        <select id="ap_g" onchange="hitungAPGAR()" class="p-2 border-b-2 border-gray-100 font-bold outline-none"><option value="0">0 - Tidak Ada Respon</option><option value="1">1 - Meringis</option><option value="2" selected>2 - Menangis/Batuk</option></select></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Activity (Otot)</label>
-                        <select id="ap_ac" onchange="hitungAPGAR()" class="p-2 border-b-2 border-gray-100 font-bold outline-none"><option value="0">0 - Lemas/Lumpuh</option><option value="1">1 - Sedikit Fleksi</option><option value="2" selected>2 - Aktif</option></select></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Respiration (Napas)</label>
-                        <select id="ap_r" onchange="hitungAPGAR()" class="p-2 border-b-2 border-gray-100 font-bold outline-none"><option value="0">0 - Tidak Ada</option><option value="1">1 - Lambat/Lemah</option><option value="2" selected>2 - Menangis Kuat</option></select></div>
+                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Appearance</label>
+                        <select id="ap_a" onchange="hitungAPGAR()" class="p-2 border-b-2 font-bold outline-none"><option value="0">Pucat</option><option value="1">Badan Merah</option><option value="2" selected>Kemerahan</option></select></div>
+                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Pulse</label>
+                        <select id="ap_p" onchange="hitungAPGAR()" class="p-2 border-b-2 font-bold outline-none"><option value="0">0</option><option value="1">< 100</option><option value="2" selected>> 100</option></select></div>
+                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Grimace</label>
+                        <select id="ap_g" onchange="hitungAPGAR()" class="p-2 border-b-2 font-bold outline-none"><option value="0">Nihil</option><option value="1">Meringis</option><option value="2" selected>Kuat</option></select></div>
+                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Activity</label>
+                        <select id="ap_ac" onchange="hitungAPGAR()" class="p-2 border-b-2 font-bold outline-none"><option value="0">Lumpuh</option><option value="1">Fleksi</option><option value="2" selected>Aktif</option></select></div>
+                        <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 uppercase">Respiration</label>
+                        <select id="ap_r" onchange="hitungAPGAR()" class="p-2 border-b-2 font-bold outline-none"><option value="0">Nihil</option><option value="1">Lemah</option><option value="2" selected>Kuat</option></select></div>
                     </div>
                     <div id="res_apgar" class="p-6 bg-rose-600 text-white rounded-3xl text-center shadow-xl">
                         <p id="val_apgar" class="text-6xl font-black">10</p>
-                        <p id="desc_apgar" class="mt-2 text-sm font-extrabold bg-black/20 inline-block px-4 py-1 rounded-full">Normal</p>
+                        <p id="desc_apgar" class="mt-2 text-sm font-extrabold bg-black/20 inline-block px-4 py-1 rounded-full uppercase">Normal</p>
+                        <div id="saran_apgar" class="saran-otomatis">SARAN: Bayi bugar. Jaga kehangatan.</div>
+                        <button onclick="openShareModal('APGAR')" class="btn-share">Bagikan Hasil</button>
                     </div>
                 </div>
             </section>
 
             <section id="map" class="tab-content">
-                <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-red-900 uppercase">Apa itu MAP?</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Mean Arterial Pressure untuk menilai kecukupan perfusi organ.</p>
-                </div>
-                <h2 class="text-lg font-extrabold text-red-900 mb-6 border-l-4 border-red-500 pl-3 uppercase">Mean Arterial Pressure</h2>
+                <h2 class="text-lg font-extrabold text-red-900 mb-6 border-l-4 border-red-500 pl-3 uppercase tracking-tighter">MAP Calculation</h2>
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">SYS</label><input type="number" id="map_sis" class="w-full bg-transparent font-black" placeholder="120"></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">DIA</label><input type="number" id="map_dia" class="w-full bg-transparent font-black" placeholder="80"></div>
+                    <div class="bg-gray-100 p-4 rounded-2xl"><label class="text-[10px] font-black uppercase text-gray-400">Sis</label><input type="number" id="map_sis" class="w-full bg-transparent font-black" placeholder="120"></div>
+                    <div class="bg-gray-100 p-4 rounded-2xl"><label class="text-[10px] font-black uppercase text-gray-400">Dia</label><input type="number" id="map_dia" class="w-full bg-transparent font-black" placeholder="80"></div>
                 </div>
-                <button onclick="hitungMAP()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG MAP</button>
-                <div id="res_map" class="hidden mt-6 p-8 bg-red-700 text-white rounded-3xl text-center shadow-xl">
+                <button onclick="hitungMAP()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest text-xs">Hitung</button>
+                <div id="res_map_box" class="hidden mt-6 p-8 bg-red-700 text-white rounded-3xl text-center shadow-xl">
                     <p id="val_map" class="text-7xl font-black">0</p>
-                    <p id="desc_map" class="font-extrabold uppercase mt-2">NORMAL</p>
+                    <p id="desc_map" class="font-extrabold uppercase mt-2">Normal</p>
+                    <div id="saran_map" class="saran-otomatis">--</div>
+                    <button onclick="openShareModal('MAP')" class="btn-share">Bagikan Hasil</button>
                 </div>
             </section>
 
             <section id="hpl" class="tab-content">
-                <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-indigo-900 uppercase">HPL & UK</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Gunakan rumus Neagele untuk prediksi persalinan.</p>
-                </div>
-                <h2 class="text-lg font-extrabold text-indigo-900 mb-6 border-l-4 border-indigo-500 pl-3 uppercase">Estimasi Persalinan</h2>
+                <h2 class="text-lg font-extrabold text-indigo-900 mb-6 border-l-4 border-indigo-500 pl-3 uppercase">Estimasi Lahir</h2>
                 <div class="space-y-4">
-                    <div class="bg-gray-50 p-6 rounded-3xl border-2 border-dashed border-gray-200 text-center">
-                        <label class="block text-xs font-black text-gray-500 uppercase mb-4">Tanggal HPHT</label>
-                        <input type="date" id="hpht_date" class="w-full bg-white p-4 rounded-2xl border shadow-sm font-black text-indigo-600">
-                    </div>
-                    <button onclick="hitungHPL()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG PREDIKSI</button>
-                    <div id="res_hpl" class="hidden space-y-4">
-                        <div class="p-8 bg-gradient-to-tr from-indigo-800 to-purple-700 text-white rounded-3xl text-center shadow-2xl">
-                            <p class="text-[10px] font-black uppercase opacity-60 mb-2">Estimasi HPL</p>
-                            <p id="val_hpl" class="text-2xl font-black">-- --- ----</p>
-                            <hr class="my-4 opacity-20">
-                            <p id="val_usia_hamil" class="text-lg font-bold">-- Minggu -- Hari</p>
-                        </div>
+                    <input type="date" id="hpht_date" class="w-full bg-gray-100 p-4 rounded-2xl border-none font-black text-indigo-600">
+                    <button onclick="hitungHPL()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG</button>
+                    <div id="res_hpl_box" class="hidden p-8 bg-gradient-to-tr from-indigo-800 to-purple-700 text-white rounded-3xl text-center shadow-2xl">
+                        <p id="val_hpl" class="text-2xl font-black">--</p>
+                        <hr class="my-4 opacity-20">
+                        <p id="val_usia_hamil" class="text-lg font-bold">--</p>
+                        <div id="saran_hpl" class="saran-otomatis">SARAN: Kontrol ANC rutin.</div>
+                        <button onclick="openShareModal('HPL')" class="btn-share">Bagikan Hasil</button>
                     </div>
                 </div>
             </section>
 
             <section id="parkland" class="tab-content">
-                <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-orange-900 uppercase">Rumus Parkland</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Kebutuhan resusitasi cairan 24 jam pertama.</p>
-                </div>
-                <h2 class="text-lg font-extrabold text-orange-900 mb-6 border-l-4 border-orange-500 pl-3 uppercase">Luka Bakar</h2>
+                <h2 class="text-lg font-extrabold text-orange-900 mb-6 border-l-4 border-orange-500 pl-3 uppercase">Parkland</h2>
                 <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">BB (kg)</label><input type="number" id="pl_bb" class="w-full bg-transparent font-black" placeholder="60"></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">Luas LB (%)</label><input type="number" id="pl_luas" class="w-full bg-transparent font-black" placeholder="20"></div>
-                    <button onclick="hitungParkland()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG CAIRAN RL</button>
-                    <div id="res_parkland" class="hidden mt-4 space-y-4">
-                        <div class="bg-orange-800 text-white p-6 rounded-3xl text-center"><p class="text-4xl font-black"><span id="val_pl_total">0</span> <span class="text-sm">ml</span></p></div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 text-center"><p class="text-[8px] font-bold text-blue-600">8 JAM I</p><p id="val_pl_8" class="font-black text-blue-900">0</p></div>
-                            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center"><p class="text-[8px] font-bold text-emerald-600">16 JAM II</p><p id="val_pl_16" class="font-black text-emerald-900">0</p></div>
+                    <div class="bg-gray-100 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400">BB (KG)</label><input type="number" id="pl_bb" class="w-full bg-transparent font-black" placeholder="60"></div>
+                    <div class="bg-gray-100 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400">LUAS (%)</label><input type="number" id="pl_luas" class="w-full bg-transparent font-black" placeholder="20"></div>
+                    <button onclick="hitungParkland()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG</button>
+                    <div id="res_pl_box" class="hidden mt-4 p-6 bg-orange-800 text-white rounded-3xl text-center shadow-xl">
+                        <p class="text-4xl font-black mb-4"><span id="val_pl_total">0</span> ml</p>
+                        <div class="grid grid-cols-2 gap-4 text-[10px] font-black">
+                            <div class="bg-black/20 p-3 rounded-xl uppercase">8 Jam I<br><span id="val_pl_8" class="text-lg">0</span></div>
+                            <div class="bg-black/20 p-3 rounded-xl uppercase">16 Jam II<br><span id="val_pl_16" class="text-lg">0</span></div>
                         </div>
+                        <div id="saran_pl" class="saran-otomatis">SARAN: Gunakan RL.</div>
+                        <button onclick="openShareModal('Parkland')" class="btn-share">Bagikan Hasil</button>
                     </div>
                 </div>
             </section>
 
             <section id="infus" class="tab-content">
-                <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-emerald-900 uppercase">Tetesan Infus (IV Drip)</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Menghitung kecepatan tetesan cairan infus per menit (TPM).</p>
-                </div>
-                <h2 class="text-lg font-extrabold text-emerald-900 mb-6 border-l-4 border-emerald-500 pl-3 uppercase">Kalkulator TPM</h2>
+                <h2 class="text-lg font-extrabold text-emerald-900 mb-6 border-l-4 border-emerald-500 pl-3 uppercase tracking-tighter">TPM Infus</h2>
                 <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">Volume Cairan (ml)</label><input type="number" id="iv_vol" class="w-full bg-transparent font-black" placeholder="500"></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">Waktu (Jam)</label><input type="number" id="iv_time" class="w-full bg-transparent font-black" placeholder="8"></div>
-                    <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">Faktor Tetes (Gtt)</label>
-                        <select id="iv_factor" class="w-full bg-transparent font-black outline-none">
-                            <option value="20">Macro (20 gtt/ml)</option>
-                            <option value="15">Macro (15 gtt/ml)</option>
-                            <option value="60">Micro (60 gtt/ml)</option>
-                        </select>
-                    </div>
-                    <button onclick="hitungInfus()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase">Hitung Tetesan</button>
-                    <div id="res_infus" class="hidden mt-4 p-8 bg-emerald-800 text-white rounded-3xl text-center shadow-xl">
+                    <input type="number" id="iv_vol" class="w-full p-4 bg-gray-100 rounded-2xl font-black" placeholder="Vol Cairan (ml)">
+                    <input type="number" id="iv_time" class="w-full p-4 bg-gray-100 rounded-2xl font-black" placeholder="Waktu (Jam)">
+                    <select id="iv_factor" class="w-full p-4 bg-gray-100 rounded-2xl font-bold">
+                        <option value="20">Macro (20)</option>
+                        <option value="60">Micro (60)</option>
+                    </select>
+                    <button onclick="hitungInfus()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG</button>
+                    <div id="res_infus_box" class="hidden mt-4 p-8 bg-emerald-800 text-white rounded-3xl text-center shadow-xl">
                         <p id="val_infus" class="text-7xl font-black">0</p>
-                        <p class="font-extrabold uppercase mt-2 tracking-widest">Tetes / Menit</p>
+                        <p class="font-bold text-xs uppercase opacity-70">Tetes / Menit</p>
+                        <div id="saran_infus" class="saran-otomatis">SARAN: Cek IV Line.</div>
+                        <button onclick="openShareModal('Infus')" class="btn-share">Bagikan Hasil</button>
                     </div>
                 </div>
             </section>
 
             <section id="gizi" class="tab-content">
-                <div class="instruction-box">
-                    <h3 class="text-sm font-bold text-emerald-900 uppercase">Status Gizi (IMT & D/S)</h3>
-                    <p class="text-[11px] text-slate-600 mt-1">Penilaian gizi dewasa (IMT) dan cakupan penimbangan anak (D/S).</p>
-                </div>
-                
-                <h2 class="text-sm font-extrabold text-emerald-900 mb-4 bg-emerald-50 p-2 rounded-lg inline-block uppercase">1. IMT Dewasa</h2>
-                <div class="space-y-4 mb-8">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">BB (kg)</label><input type="number" id="imt_bb" class="w-full bg-transparent font-black" placeholder="60"></div>
-                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">TB (cm)</label><input type="number" id="imt_tb" class="w-full bg-transparent font-black" placeholder="165"></div>
+                <div class="space-y-8">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-emerald-900 mb-4 bg-emerald-50 p-2 rounded-lg inline-block uppercase">IMT</h2>
+                        <div class="grid grid-cols-2 gap-4 mb-2">
+                            <input type="number" id="imt_bb" class="p-4 bg-gray-100 rounded-2xl font-black" placeholder="BB">
+                            <input type="number" id="imt_tb" class="p-4 bg-gray-100 rounded-2xl font-black" placeholder="TB">
+                        </div>
+                        <button onclick="hitungIMT()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg">HITUNG</button>
+                        <div id="res_imt_box" class="hidden mt-4 p-6 text-white rounded-3xl text-center shadow-xl">
+                            <p id="val_imt" class="text-6xl font-black">0.0</p>
+                            <div id="saran_imt" class="saran-otomatis">--</div>
+                            <button onclick="openShareModal('IMT')" class="btn-share">Bagikan Hasil</button>
+                        </div>
                     </div>
-                    <button onclick="hitungIMT()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase transition-all active:scale-95">Hitung IMT</button>
-                    <div id="res_imt" class="hidden mt-4 p-8 bg-emerald-700 text-white rounded-3xl text-center shadow-xl">
-                        <p id="val_imt" class="text-7xl font-black">0.0</p>
-                        <p id="desc_imt" class="mt-4 text-sm font-extrabold bg-black/20 inline-block px-6 py-2 rounded-full uppercase tracking-wider">--</p>
-                    </div>
-                </div>
 
-                <h2 class="text-sm font-extrabold text-blue-900 mb-4 bg-blue-50 p-2 rounded-lg inline-block uppercase">2. Cakupan Anak (D/S)</h2>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">D (Ditimbang)</label><input type="number" id="ds_d" class="w-full bg-transparent font-black" placeholder="80"></div>
-                        <div class="bg-gray-50 p-4 rounded-2xl"><label class="text-[10px] font-black text-gray-400 uppercase">S (Sasaran)</label><input type="number" id="ds_s" class="w-full bg-transparent font-black" placeholder="100"></div>
-                    </div>
-                    <button onclick="hitungDS()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase transition-all active:scale-95">Hitung Cakupan D/S</button>
-                    <div id="res_ds" class="hidden mt-4 p-8 bg-blue-700 text-white rounded-3xl text-center shadow-xl">
-                        <p class="text-[10px] font-black uppercase opacity-60 mb-1">Persentase D/S</p>
-                        <p id="val_ds" class="text-7xl font-black">0%</p>
-                        <p id="desc_ds" class="mt-4 text-sm font-extrabold bg-black/20 inline-block px-6 py-2 rounded-full uppercase tracking-wider">--</p>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-blue-900 mb-4 bg-blue-50 p-2 rounded-lg inline-block uppercase">D/S</h2>
+                        <div class="grid grid-cols-2 gap-4 mb-2">
+                            <input type="number" id="ds_d" class="p-4 bg-gray-100 rounded-2xl font-black" placeholder="D">
+                            <input type="number" id="ds_s" class="p-4 bg-gray-100 rounded-2xl font-black" placeholder="S">
+                        </div>
+                        <button onclick="hitungDS()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest text-xs">Hitung</button>
+                        <div id="res_ds_box" class="hidden mt-4 p-6 text-white rounded-3xl text-center shadow-xl">
+                            <p id="val_ds" class="text-6xl font-black">0%</p>
+                            <div id="saran_ds" class="saran-otomatis">--</div>
+                            <button onclick="openShareModal('Cakupan D/S')" class="btn-share">Bagikan Hasil</button>
+                        </div>
                     </div>
                 </div>
             </section>
 
         </main>
 
-        <footer class="mt-auto bg-gray-900 text-[10px] text-gray-500 p-4 text-center border-t border-white/5">
-            <div class="flex flex-col items-center gap-2">
-                <p class="uppercase font-bold tracking-widest">UGD Sampanahan • by.adi.p</p>
-                <button onclick="checkUpdate()" class="bg-white/10 px-4 py-1.5 rounded-full text-[9px] hover:bg-white/20 transition-all font-black text-blue-400 uppercase">Cek Update Versi</button>
-            </div>
+        <footer class="mt-auto bg-slate-900 text-[10px] text-slate-500 p-6 text-center">
+            <p class="uppercase font-bold tracking-[0.2em] mb-1">UGD Sampanahan Pro • by.adi.p</p>
         </footer>
     </div>
 
-    <div id="pwa-install-ui">
-        <div class="pwa-icon-box"></div>
-        <div class="pwa-info">
-            <p class="pwa-name">UGD Sampanahan Pro</p>
-            <span class="pwa-meta">Versi 3.4 • Siap Offline</span>
-            <div class="pwa-stars">★★★★★ <span style="color:#5f6368;margin-left:4px">Klinis Standard</span></div>
-        </div>
-        <button class="pwa-install-btn" id="pwa-cta">Instal</button>
-    </div>
-
     <script>
-        const CURRENT_VERSION = "3.4";
+        let currentShareText = "";
 
-        // Logic Notifikasi Fitur Baru
-        window.addEventListener('load', () => {
-            const lastNotified = localStorage.getItem('last_notif_version');
-            if (lastNotified !== CURRENT_VERSION) {
-                setTimeout(() => {
-                    document.getElementById('update-notif').classList.add('show');
-                }, 1500);
+        // --- SMART SHARE LOGIC ---
+        function openShareModal(menu) {
+            currentShareText = `*HASIL KALKULATOR UGD SAMPANAHAN*\n\n`;
+            currentShareText += `*Menu:* ${menu}\n`;
+            
+            if(menu === 'GCS') currentShareText += `*Skor:* ${document.getElementById('val_gcs').innerText} (${document.getElementById('desc_gcs').innerText})\n${document.getElementById('saran_gcs').innerText}`;
+            else if(menu === 'APGAR') currentShareText += `*Skor:* ${document.getElementById('val_apgar').innerText} (${document.getElementById('desc_apgar').innerText})\n${document.getElementById('saran_apgar').innerText}`;
+            else if(menu === 'MAP') currentShareText += `*Hasil:* ${document.getElementById('val_map').innerText} mmHg\n${document.getElementById('saran_map').innerText}`;
+            else if(menu === 'HPL') currentShareText += `*Estimasi:* ${document.getElementById('val_hpl').innerText}\n*UK:* ${document.getElementById('val_usia_hamil').innerText}`;
+            else if(menu === 'Parkland') currentShareText += `*Total:* ${document.getElementById('val_pl_total').innerText} ml\n8 Jam I: ${document.getElementById('val_pl_8').innerText} ml`;
+            else if(menu === 'Infus') currentShareText += `*TPM:* ${document.getElementById('val_infus').innerText}`;
+            else if(menu === 'IMT') currentShareText += `*Skor:* ${document.getElementById('val_imt').innerText}`;
+            else if(menu === 'Cakupan D/S') currentShareText += `*Hasil:* ${document.getElementById('val_ds').innerText}`;
+
+            currentShareText += `\n\n_Auto-Generated by UGD Pro v3.8_`;
+            document.getElementById('modal-share-overlay').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('modal-share-overlay').style.display = 'none';
+            document.getElementById('target-phone').value = "";
+        }
+
+        async function pickContact() {
+            if ('contacts' in navigator && 'ContactsManager' in window) {
+                try {
+                    const props = ['tel'];
+                    const options = { multiple: false };
+                    const contact = await navigator.contacts.select(props, options);
+                    if (contact && contact[0].tel && contact[0].tel[0]) {
+                        let phone = contact[0].tel[0].replace(/\s/g, '').replace(/-/g, '').replace(/\+/g, '');
+                        if(phone.startsWith('62')) phone = '0' + phone.slice(2);
+                        document.getElementById('target-phone').value = phone;
+                        
+                        // AUTO EXECUTE WHATSAPP AFTER PICKING
+                        setTimeout(() => executeWhatsAppShare(), 300);
+                    }
+                } catch (ex) {
+                    alert("Gagal akses kontak. Pastikan browser memberi izin.");
+                }
+            } else {
+                alert("Pilih kontak otomatis tidak didukung di perangkat ini. Silakan isi manual.");
             }
-        });
-
-        function closeNotif() {
-            document.getElementById('update-notif').classList.remove('show');
-            localStorage.setItem('last_notif_version', CURRENT_VERSION);
         }
 
-        // Logic Cek Update & Saran
-        function checkUpdate() {
-            const btn = event.target;
-            btn.innerText = "MENGECEK...";
-            btn.disabled = true;
-
-            setTimeout(() => {
-                alert(`[INFO SISTEM]\nVersi Saat Ini: v${CURRENT_VERSION}\nStatus: Paling Terbaru\n\nSaran Update:\nPak Adi, untuk versi selanjutnya disarankan menambahkan "Kalkulator Skor Ballard" untuk bayi baru lahir agar modul KIA semakin lengkap.`);
-                btn.innerText = "CEK UPDATE VERSI";
-                btn.disabled = false;
-            }, 1200);
+        function executeWhatsAppShare() {
+            let phone = document.getElementById('target-phone').value;
+            if(!phone) {
+                alert("Masukkan nomor WhatsApp!");
+                return;
+            }
+            if(phone.startsWith('0')) phone = '62' + phone.slice(1);
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(currentShareText)}`, '_blank');
+            closeShareModal();
         }
 
-        // Tab Navigation Logic
+        // --- CORE CALCULATIONS ---
+        function toggleChat() { document.getElementById('chatbot-box').classList.toggle('chat-active'); }
+        
+        function askChat(topic) {
+            const content = document.getElementById('chat-content');
+            let response = topic === 'Syok' ? "Syok: Guyur RL 20ml/kgBB (Anak) atau 1-2 L (Dewasa)." : topic === 'Kejang' ? "Diazepam IV 0.3-0.5 mg/kgBB pelan." : "Nebulisasi Salbutamol tiap 20 menit.";
+            content.innerHTML += `<div class="text-right"><div class="bg-indigo-100 p-2 rounded-xl inline-block mb-2 font-bold">${topic}?</div></div>`;
+            content.innerHTML += `<div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 mb-2">${response}</div>`;
+            content.scrollTop = content.scrollHeight;
+        }
+
+        function hitungGCS() {
+            const total = parseInt(document.getElementById('gcs_e').value) + parseInt(document.getElementById('gcs_v').value) + parseInt(document.getElementById('gcs_m').value);
+            document.getElementById('val_gcs').innerText = total;
+            let d = "Sadar Penuh", s = "SARAN: Pasien stabil.", c = "bg-indigo-700";
+            if (total <= 3) { d = "Koma"; s = "SARAN: Gawat Darurat! Amankan ETT!"; c = "bg-red-900"; }
+            else if (total <= 8) { d = "Sopor"; s = "SARAN: Risiko aspirasi."; c = "bg-red-700"; }
+            else if (total <= 12) { d = "Somnolen"; s = "SARAN: Observasi ketat."; c = "bg-orange-600"; }
+            document.getElementById('gcs_card').className = `mt-4 p-8 text-white rounded-3xl text-center shadow-xl transition-all ${c}`;
+            document.getElementById('desc_gcs').innerText = d;
+            document.getElementById('saran_gcs').innerText = s;
+        }
+
+        function hitungAPGAR() {
+            const total = parseInt(document.getElementById('ap_a').value) + parseInt(document.getElementById('ap_p').value) + parseInt(document.getElementById('ap_g').value) + parseInt(document.getElementById('ap_ac').value) + parseInt(document.getElementById('ap_r').value);
+            document.getElementById('val_apgar').innerText = total;
+            document.getElementById('desc_apgar').innerText = total >= 7 ? "Normal" : (total >= 4 ? "Asfiksia Sedang" : "Asfiksia Berat");
+            document.getElementById('saran_apgar').innerText = total >= 7 ? "SARAN: Jaga kehangatan." : "SARAN: Resusitasi segera!";
+        }
+
+        function hitungMAP() {
+            const s = parseFloat(document.getElementById('map_sis').value), d = parseFloat(document.getElementById('map_dia').value);
+            if(!isNaN(s) && !isNaN(d)) {
+                const map = Math.round((s + (2 * d)) / 3);
+                document.getElementById('val_map').innerText = map;
+                document.getElementById('desc_map').innerText = map < 70 ? "Perfusi Rendah" : "Normal";
+                document.getElementById('saran_map').innerText = map < 70 ? "SARAN: Risiko syok." : "SARAN: Perfusi adekuat.";
+                document.getElementById('res_map_box').classList.remove('hidden');
+            }
+        }
+
+        function hitungHPL() {
+            const d = new Date(document.getElementById('hpht_date').value);
+            if(!isNaN(d)) {
+                let hpl = new Date(d); hpl.setDate(hpl.getDate() + 7); hpl.setMonth(hpl.getMonth() + 9);
+                document.getElementById('val_hpl').innerText = hpl.toLocaleDateString('id-ID', {year:'numeric', month:'long', day:'numeric'});
+                const diff = Math.floor((new Date() - d) / (1000*60*60*24));
+                document.getElementById('val_usia_hamil').innerText = `${Math.floor(diff/7)} Minggu ${diff%7} Hari`;
+                document.getElementById('res_hpl_box').classList.remove('hidden');
+            }
+        }
+
+        function hitungParkland() {
+            const bb = parseFloat(document.getElementById('pl_bb').value), luas = parseFloat(document.getElementById('pl_luas').value);
+            if(!isNaN(bb) && !isNaN(luas)) {
+                const t = 4 * bb * luas;
+                document.getElementById('val_pl_total').innerText = t.toLocaleString();
+                document.getElementById('val_pl_8').innerText = (t/2).toLocaleString();
+                document.getElementById('val_pl_16').innerText = (t/2).toLocaleString();
+                document.getElementById('res_pl_box').classList.remove('hidden');
+            }
+        }
+
+        function hitungInfus() {
+            const v = parseFloat(document.getElementById('iv_vol').value), t = parseFloat(document.getElementById('iv_time').value), f = parseInt(document.getElementById('iv_factor').value);
+            if(!isNaN(v) && !isNaN(t)) {
+                document.getElementById('val_infus').innerText = Math.round((v * f) / (t * 60));
+                document.getElementById('res_infus_box').classList.remove('hidden');
+            }
+        }
+
+        function hitungIMT() {
+            const imt = parseFloat(document.getElementById('imt_bb').value) / Math.pow(parseFloat(document.getElementById('imt_tb').value)/100, 2);
+            if(!isNaN(imt)) {
+                document.getElementById('val_imt').innerText = imt.toFixed(1);
+                let d = imt < 18.5 ? "Kurus" : imt > 25 ? "Obesitas" : "Normal";
+                let c = imt < 18.5 ? "bg-orange-500" : imt > 25 ? "bg-red-600" : "bg-emerald-600";
+                document.getElementById('res_imt_box').className = `mt-4 p-6 text-white rounded-3xl text-center shadow-xl ${c}`;
+                document.getElementById('saran_imt').innerText = `SARAN: Status ${d}.`;
+                document.getElementById('res_imt_box').classList.remove('hidden');
+            }
+        }
+
+        function hitungDS() {
+            const p = (parseFloat(document.getElementById('ds_d').value) / parseFloat(document.getElementById('ds_s').value)) * 100;
+            if(!isNaN(p)) {
+                document.getElementById('val_ds').innerText = Math.round(p) + "%";
+                document.getElementById('saran_ds').innerText = p >= 80 ? "SARAN: Cakupan Baik." : "SARAN: Sweeping Balita.";
+                document.getElementById('res_ds_box').className = `mt-4 p-6 text-white rounded-3xl text-center shadow-xl ${p >= 80 ? 'bg-emerald-600' : 'bg-red-600'}`;
+                document.getElementById('res_ds_box').classList.remove('hidden');
+            }
+        }
+
         function openTab(evt, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.remove("active"); }
-            tablinks = document.getElementsByClassName("tab-link");
-            for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active-tab"); }
+            let i, tabcontent = document.getElementsByClassName("tab-content"), tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tabcontent.length; i++) tabcontent[i].classList.remove("active");
+            for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active-tab");
             document.getElementById(tabName).classList.add("active");
             evt.currentTarget.classList.add("active-tab");
             window.scrollTo(0,0);
         }
 
-        // --- LOGIKA JAVASCRIPT ---
-        function hitungGCS() {
-            const e = parseInt(document.getElementById('gcs_e').value);
-            const v = parseInt(document.getElementById('gcs_v').value);
-            const m = parseInt(document.getElementById('gcs_m').value);
-            const total = e + v + m;
-            document.getElementById('val_gcs').innerText = total;
-            let desc = "Compos Mentis";
-            if (total <= 3) desc = "Coma";
-            else if (total <= 6) desc = "Sopor";
-            else if (total <= 9) desc = "Somnolen";
-            else if (total <= 13) desc = "Apatis";
-            document.getElementById('desc_gcs').innerText = desc;
-        }
-
-        function hitungAPGAR() {
-            const a = parseInt(document.getElementById('ap_a').value);
-            const p = parseInt(document.getElementById('ap_p').value);
-            const g = parseInt(document.getElementById('ap_g').value);
-            const ac = parseInt(document.getElementById('ap_ac').value);
-            const r = parseInt(document.getElementById('ap_r').value);
-            const total = a + p + g + ac + r;
-            document.getElementById('val_apgar').innerText = total;
-            let desc = "Normal";
-            if (total <= 3) desc = "Asfiksia Berat";
-            else if (total <= 6) desc = "Asfiksia Sedang";
-            document.getElementById('desc_apgar').innerText = desc;
-        }
-
-        function hitungMAP() {
-            const sis = parseFloat(document.getElementById('map_sis').value);
-            const dia = parseFloat(document.getElementById('map_dia').value);
-            if (sis && dia) {
-                const map = (sis + (2 * dia)) / 3;
-                document.getElementById('res_map').classList.remove('hidden');
-                document.getElementById('val_map').innerText = Math.round(map);
-                document.getElementById('desc_map').innerText = (map < 70) ? "LOW PERFUSION" : "NORMAL";
-            }
-        }
-
-        function hitungHPL() {
-            const dateVal = document.getElementById('hpht_date').value;
-            if (!dateVal) return;
-            const hpht = new Date(dateVal);
-            let hpl = new Date(hpht);
-            hpl.setDate(hpl.getDate() + 7);
-            hpl.setMonth(hpl.getMonth() + 9); 
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('val_hpl').innerText = hpl.toLocaleDateString('id-ID', options);
-            const today = new Date();
-            const diffTime = Math.abs(today - hpht);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const weeks = Math.floor(diffDays / 7);
-            const days = diffDays % 7;
-            document.getElementById('val_usia_hamil').innerText = `${weeks} Minggu ${days} Hari`;
-            document.getElementById('res_hpl').classList.remove('hidden');
-        }
-
-        function hitungParkland() {
-            const bb = parseFloat(document.getElementById('pl_bb').value);
-            const luas = parseFloat(document.getElementById('pl_luas').value);
-            if (bb && luas) {
-                const total = 4 * bb * luas;
-                document.getElementById('res_parkland').classList.remove('hidden');
-                document.getElementById('val_pl_total').innerText = total.toLocaleString();
-                document.getElementById('val_pl_8').innerText = (total / 2).toLocaleString() + " ml";
-                document.getElementById('val_pl_16').innerText = (total / 2).toLocaleString() + " ml";
-            }
-        }
-
-        function hitungInfus() {
-            const vol = parseFloat(document.getElementById('iv_vol').value);
-            const time = parseFloat(document.getElementById('iv_time').value);
-            const factor = parseInt(document.getElementById('iv_factor').value);
-            if (vol && time) {
-                const tpm = (vol * factor) / (time * 60);
-                document.getElementById('res_infus').classList.remove('hidden');
-                document.getElementById('val_infus').innerText = Math.round(tpm);
-            }
-        }
-
-        function hitungIMT() {
-            const bb = parseFloat(document.getElementById('imt_bb').value);
-            const tbCm = parseFloat(document.getElementById('imt_tb').value);
-            if (bb && tbCm) {
-                const tbMeter = tbCm / 100;
-                const imt = bb / (tbMeter * tbMeter);
-                document.getElementById('res_imt').classList.remove('hidden');
-                document.getElementById('val_imt').innerText = imt.toFixed(1);
-                let desc = "Normal";
-                let colorClass = "bg-emerald-600";
-                if (imt < 18.5) { desc = "Kurus"; colorClass = "bg-orange-500"; }
-                else if (imt > 25 && imt <= 27) { desc = "Overweight"; colorClass = "bg-orange-600"; }
-                else if (imt > 27) { desc = "Obesitas"; colorClass = "bg-red-700"; }
-                document.getElementById('res_imt').className = `mt-4 p-8 text-white rounded-3xl text-center shadow-xl ${colorClass}`;
-                document.getElementById('desc_imt').innerText = desc;
-            }
-        }
-
-        // NEW: LOGIC D/S
-        function hitungDS() {
-            const d = parseFloat(document.getElementById('ds_d').value);
-            const s = parseFloat(document.getElementById('ds_s').value);
-            
-            if (d && s) {
-                const persentase = (d / s) * 100;
-                document.getElementById('res_ds').classList.remove('hidden');
-                document.getElementById('val_ds').innerText = Math.round(persentase) + "%";
-                
-                let desc = "";
-                let colorClass = "bg-blue-700";
-                
-                if (persentase >= 80) {
-                    desc = "Cakupan Baik";
-                    colorClass = "bg-emerald-600";
-                } else if (persentase >= 60) {
-                    desc = "Cakupan Sedang";
-                    colorClass = "bg-blue-600";
-                } else {
-                    desc = "Cakupan Kurang";
-                    colorClass = "bg-red-600";
-                }
-                
-                document.getElementById('res_ds').className = `mt-4 p-8 text-white rounded-3xl text-center shadow-xl ${colorClass}`;
-                document.getElementById('desc_ds').innerText = desc;
-            }
-        }
-
-        // PWA & Offline logic
-        let pwaPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); pwaPrompt = e;
-            setTimeout(() => document.getElementById('pwa-install-ui')?.classList.add('visible'), 2500);
-        });
-        document.getElementById('pwa-cta')?.addEventListener('click', async () => {
-            if (pwaPrompt) { pwaPrompt.prompt(); pwaPrompt = null; }
-        });
-        window.addEventListener('online', () => {
-            document.getElementById('offline-label').innerText = 'ONLINE';
-            document.getElementById('offline-label').className = 'bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold';
-        });
-        window.addEventListener('offline', () => {
-            document.getElementById('offline-label').innerText = 'OFFLINE';
-            document.getElementById('offline-label').className = 'bg-red-500 px-3 py-1 rounded-full text-[10px] font-bold';
-        });
+        window.addEventListener('online', () => document.getElementById('offline-label').innerText = 'Online');
+        window.addEventListener('offline', () => document.getElementById('offline-label').innerText = 'Offline');
     </script>
-
-    <style>
-        #pwa-install-ui { position: fixed; bottom: -120%; left: 0; width: 100%; background: #ffffff; z-index: 10000; padding: 24px; box-shadow: 0 -12px 48px rgba(0,0,0,0.2); border-radius: 32px 32px 0 0; transition: 0.7s cubic-bezier(0.19, 1, 0.22, 1); display: flex; align-items: center; gap: 20px; }
-        #pwa-install-ui.visible { bottom: 0; }
-        .pwa-icon-box { width: 68px; height: 68px; border-radius: 16px; background-image: url('icon-192.png'); background-size: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-shrink: 0; }
-        .pwa-info { flex: 1; }
-        .pwa-name { font-weight: 700; font-size: 19px; margin: 0; }
-        .pwa-meta { font-size: 12px; color: #5f6368; }
-        .pwa-stars { color: #01875f; font-size: 11px; }
-        .pwa-install-btn { background: #01875f; color: #ffffff; border: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-    </style>
 </body>
 </html>
